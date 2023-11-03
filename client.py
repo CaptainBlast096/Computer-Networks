@@ -28,10 +28,6 @@ def main():
         if cmd == "TASK":
             client.send(cmd.encode(FORMAT))
 
-        if cmd == "NEWFOLDER":
-            client.send(cmd.encode(FORMAT))
-            folder_name = input("Enter the folder name: ")
-            client.send(folder_name.encode(FORMAT))
         elif cmd == "LOGOUT":
             client.send(cmd.encode(FORMAT))
             break

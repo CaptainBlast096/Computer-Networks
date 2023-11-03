@@ -24,23 +24,6 @@ def handle_client (conn,addr):
         if cmd == "LOGOUT":
             break
 
-        if cmd == "NEWFOLDER":
-            send_data += "Enter the folder name: "
-            conn.send(send_data.encode(FORMAT))
-            try:
-                folder_name = conn.recv(SIZE).decode(FORMAT)
-                os.mkdir(f"{SERVER_PATH}/{folder_name}")
-                send_data += f"Folder {folder_name} is created successfully.\n"
-                conn.send(send_data.encode(FORMAT))
-
-            except FileExistsError: #If the file already exists
-                send_data += f"Folder {folder_name} is already exists.\n"
-                conn.send(send_data.encode(FORMAT))
-
-            except FileNotFoundError: #If the file is not found
-                send_data += f"Folder {folder_name} is not found.\n"
-                conn.send(send_data.encode(FORMAT))
-
         elif cmd == "TASK":
             send_data += "LOGOUT from the server.\n"
             conn.send(send_data.encode(FORMAT))
