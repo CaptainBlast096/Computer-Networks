@@ -26,16 +26,24 @@ def handle_client (conn,addr):
 
         elif cmd == "UPLOAD":
             filename = data[1]
-            file_data = conn.recv(SIZE).decode(FORMAT)
-            print(f"[RECV] Receving the filename.")
-            file = open(filename, "w")
-            conn.sent("Filename recieved.".encode(FORMAT))
+            try:
+                print(f"[RECV] Receviing the filename: {filename}")
+                conn.send("Filename recieved.".encode(FORMAT))
 
-            data = conn.recv(SIZE).decode(FORMAT)
-            print(f"[RECV] Receving the file data.")
-            file.write(data)
-            conn.send("File data recieved.".encode(FORMAT))
-            file.close()
+                file_data = conn.recv(SIZE).decode(FORMAT)
+                print(f"[RECV] Receviing the file data.")
+
+                with open(filename, "w") as file:
+                    file.write(file_data)
+
+                conn.send("File data received.".encode(FORMAT))
+                print(f"[SAVE] File {filename} saved.")
+            except Exception as e:
+                error_message = f"File {filename} not saved. Error: {e}"
+                print(error_message)
+                conn.send(error_message.encode(FORMAT))
+            else:
+                print("Invalid UPLOAD command. Usage: UPLOAD <filename>")
 
         elif cmd == "TASK":
             send_data += "LOGOUT from the server.\n"
