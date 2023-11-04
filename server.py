@@ -9,7 +9,7 @@ PORT = 4450
 ADDR = (IP,PORT)
 SIZE = 1024
 FORMAT = "utf-8"
-SERVER_PATH = "server"
+SERVER_PATH = r"C:\Database"
 ### to handle the clients
 
 
@@ -23,6 +23,19 @@ def handle_client (conn,addr):
         send_data = "OK@"
         if cmd == "LOGOUT":
             break
+
+        elif cmd == "UPLOAD":
+            filename = data[1]
+            file_data = conn.recv(SIZE).decode(FORMAT)
+            print(f"[RECV] Receving the filename.")
+            file = open(filename, "w")
+            conn.sent("Filename recieved.".encode(FORMAT))
+
+            data = conn.recv(SIZE).decode(FORMAT)
+            print(f"[RECV] Receving the file data.")
+            file.write(data)
+            conn.send("File data recieved.".encode(FORMAT))
+            file.close()
 
         elif cmd == "TASK":
             send_data += "LOGOUT from the server.\n"
