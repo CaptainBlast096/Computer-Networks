@@ -2,7 +2,7 @@ import socket
 import os
 
 IP = socket.gethostbyname(socket.gethostname())
-PORT = 4455
+PORT = 4450
 ADDR = (IP, PORT)
 FORMAT = "utf-8"
 SIZE = 1024
@@ -38,5 +38,8 @@ def main():
 
          response = client.recv(SIZE).decode(FORMAT)
          print(f"[SERVER]: {response}")
+
+    elif user_input == "LOGOUT":
+         client.send(user_input.encode(FORMAT))
 if __name__== "__main__":
         main()
