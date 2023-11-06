@@ -1,10 +1,5 @@
-#Things to work on
-    # Allow User to decide where the file will be opened from
-    # Allow User to send the file to a specified folder
-    # Add DELETE Command
-    # Make the FTP into the UPLOAD command
-    # Create a Switch statement
 import socket
+import os
 
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 4455
@@ -12,16 +7,36 @@ ADDR = (IP, PORT)
 FORMAT = "utf-8"
 SIZE = 1024
 SENDER_FOLDER = "/home/jaleel/Python/Desktop"
+
 def main():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(ADDR)
-    
-    file = open("/home/jaleel/Python/Desktop/Data", "r")
-    data = file.read()
+    user_input = input("Enter a command: ")
 
-    client.send("Data.txt".encode(FORMAT))
-    msg = client.recv(SIZE).decode(FORMAT)
-    print(f"[SERVER]: {msg}")
-    print("File has been sent to server succesfully")
+    if user_input == "UPLOAD":
+        # Send the "UPLOAD" command to the server
+        client.send("UPLOAD".encode(FORMAT))
+
+        # Send the file name
+        client.send("Data".encode(FORMAT))
+
+        # Then, send the file data
+        file = open("/home/jaleel/Python/Desktop/Data", "r")
+        data = file.read()
+        client.send(data.encode(FORMAT))
+        
+        # Indicate the end of the file
+        client.send(b'UPLOAD_COMPLETE')
+
+        msg = client.recv(SIZE).decode(FORMAT)
+        print(f"[SERVER]: {msg}")
+        print("File has been sent to the server successfully")
+
+    elif user_input == "DELETE":
+         filename_to_delete = "Data"
+         client.send(f"DELETE@{filename_to_delete}".encode(FORMAT))
+
+         response = client.recv(SIZE).decode(FORMAT)
+         print(f"[SERVER]: {response}")
 if __name__== "__main__":
         main()
