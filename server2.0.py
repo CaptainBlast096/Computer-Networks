@@ -2,7 +2,7 @@ import socket
 import os
 
 IP = socket.gethostbyname(socket.gethostname())
-PORT = 4455
+PORT = 4450
 ADDR = (IP, PORT)
 FORMAT = "utf-8"
 SIZE = 1024
@@ -41,6 +41,7 @@ def delete_file(conn):
         response= "File not found."
     print(f"Sending response: {response}")
     conn.send(response.encode(FORMAT))
+
 def main():
     print("[START] Server is starting.")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -59,7 +60,9 @@ def main():
           if command == "DELETE":
             print("Will delete file from server's database")
             delete_file(conn)
+
           if command == "LOGOUT":
+            print(f"{addr} disconnected")
             break
           conn.close
         
