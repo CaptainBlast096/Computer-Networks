@@ -28,6 +28,19 @@ def recieve_file(conn):
     # Inform the client that the file transfer is complete
     conn.send("File uploaded successfully".encode(FORMAT))
 
+def delete_file(conn):
+    file_delete = "Data"
+    file_path = os.path.join(DESTINATION_FOLDER, file_delete)
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+            response = "File deleted successfully."
+        except Exception as e:
+            response = f"Error deleting file: {str(e)}"
+    else:
+        response= "File not found."
+    print(f"Sending response: {response}")
+    conn.send(response.encode(FORMAT))
 def main():
     print("[START] Server is starting.")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,13 +51,16 @@ def main():
     while True:
           conn, addr = server.accept()
           print(f"[NEW CONNECTION] {addr} connected.")
+          command = conn.recv(SIZE).decode(FORMAT)
 
-          #filename = conn.recv(SIZE).decode(FORMAT)
-          #print("[RECV] Filename received.")
-          #file = open(filename, "w")
-          #conn.send("Filename received." .encode(FORMAT))
-          # Receive the file from the client and save it to the destination folder
-          recieve_file(conn)
+          if command == "UPLOAD":
+            recieve_file(conn)
+
+          if command == "DELETE":
+            print("Will delete file from server's database")
+            delete_file(conn)
+          if command == "LOGOUT":
+            break
           conn.close
         
 if __name__== "__main__":
