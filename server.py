@@ -1,66 +1,98 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# Author : Ayesha S. Dina
-import os
+""""
+Author: Jaleel Rogers
+Class: CNT3004.01
+Proffesor: Dr. Dina
+Title: HW #3 - Server
+Date: 11/10/23
+"""""
 import socket
-import threading
-IP = "localhost" ### gethostname()
+import os
+import threading 
+
+IP = socket.gethostbyname(socket.gethostname())
 PORT = 4450
-ADDR = (IP,PORT)
-SIZE = 1024
+ADDR = (IP, PORT) #ADDR is a tupple of IP & port
 FORMAT = "utf-8"
-SERVER_PATH = r"C:\Database"
-### to handle the clients
+SIZE = 1024
+#SERVER_PATH = "Database"
+SERVER_PATH = "/home/jaleel/Python/Database"
 
+def handle_client(conn, addr):
+  print(f"[NEW CONNECTION] {addr} connected.")
+  conn.send("OK@Welcome to the Server.".encode(FORMAT))
 
-def handle_client (conn,addr):
-    print(f"NEW CONNECTION: {addr} connected.")
-    conn.send("OK@Welcome to the server".encode(FORMAT))
-    while True:
-        data = conn.recv(SIZE).decode(FORMAT)
-        data = data.split("@")
-        cmd = data[0]
-        send_data = "OK@"
-        if cmd == "LOGOUT":
-            break
+  while True:
+      data = conn.recv(SIZE).decode(FORMAT)
+      #print(data) # Debugging - Before input is split
+      data = data.split("@")
+      #print(data) # Debugging - After data is split
+      cmd = data[0]
+      
+      if cmd == "HELP": #Issues with this command
+          send_data = "OK@"
+          send_data += "HELP: List all of the commands."
+          send_data += "LIST: List all the files from the server.\n"
+          send_data += "UPLOAD <path>: Upload a file to the server.\n"
+          send_data += "DELETE <file_name>: Delete a file from the server.\n"
+          send_data += "LOGOUT: Disconnect from the server.\n"
 
-        elif cmd == "UPLOAD":
-            filename = data[1]
-            try:
-                print(f"[RECV] Receviing the filename: {filename}")
-                conn.send("Filename recieved.".encode(FORMAT))
+          conn.send(send_data.encode(FORMAT))
 
-                file_data = conn.recv(SIZE).decode(FORMAT)
-                print(f"[RECV] Receviing the file data.")
+      elif cmd == "LOGOUT": #Works
+          break
+      
+      elif cmd == "LIST": #Works
+          files = os.listdir(SERVER_PATH)
+          send_data = "OK@"
 
-                with open(filename, "w") as file:
-                    file.write(file_data)
+          if len(files) == 0:
+              send_data += "The server directory is empty."
 
-                conn.send("File data received.".encode(FORMAT))
-                print(f"[SAVE] File {filename} saved.")
-            except Exception as e:
-                error_message = f"File {filename} not saved. Error: {e}"
-                print(error_message)
-                conn.send(error_message.encode(FORMAT))
-            else:
-                print("Invalid UPLOAD command. Usage: UPLOAD <filename>")
+          else:
+              send_data += "\n".join (f for f in files)
+          conn.send(send_data.encode(FORMAT))
+      
+      elif cmd == "UPLOAD": # Dosen't work
+          name, text_file = data[1], data[2]
+          file_path = os.path.join(SERVER_PATH, name)
+          with open(file_path, "w") as f:
+              f.write(text_file)
 
-        elif cmd == "TASK":
-            send_data += "LOGOUT from the server.\n"
-            conn.send(send_data.encode(FORMAT))
+          send_data = "OK@File uploaded succesfully."
+          conn.send(send_data.encode(FORMAT))
 
-    print(f"{addr} disconnected")
-    conn.close()
+      elif cmd == "DELETE": # Works
+          files = os.listdir(SERVER_PATH)
+          send_data = "OK@"
+          file_name = data[1]
+
+          if len(files) == 0:
+              send_data += "The server directory is empty."
+
+          else:
+              if file_name in files:
+                  os.system(f"rm {SERVER_PATH}/{file_name}")
+                  send_data += "Files succesfully deleted."
+              else:
+                  send_data += "File not found."
+
+          conn.send(send_data.encode(FORMAT))
+      
+  print(f"[DISCONNECTED] {addr} disconnected")
+  conn.close()
+
 def main():
-    print("Starting the server")
-    server = socket.socket(socket.AF_INET,socket.SOCK_STREAM) ## used IPV4 and TCP connection
-    server.bind(ADDR) # bind the address
-    server.listen() ## start listening
-    print(f"server is listening on {IP}: {PORT}")
-    while True:
-        conn, addr = server.accept() ### accept a connection from a client
-        thread = threading.Thread(target = handle_client, args = (conn, addr)) ## assigning a thread for each client
-        thread.start()
+    print("[START] Server is starting.")
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(ADDR)
+    server.listen()
+    print("[LISTENING] Server is listening.")
 
-if __name__ == "__main__":
-    main()
+    while True:
+          conn, addr = server.accept()
+          thread = threading.Thread(target = handle_client, args=(conn, addr)) # Responsible for server to handle multiple clients
+          thread.start()
+          print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
+
+if __name__== "__main__":
+        main()
