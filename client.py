@@ -47,11 +47,11 @@ def main():
             path = data[1]
 
             with open(f"{path}", "r") as f:
-                text_file = f.read()
+                text_file = f.read() # Reading the contents of the file
             
-            file_name = path.split("/")[-1]
-            send_data = f"{cmd}@{file_name}@{text_file}"
-            client.send(send_data.encode(FORMAT))
+            file_name = path.split("/")[-1] # Splits file name from its path
+            send_data = f"{cmd}@{file_name}@{text_file}" # Reorganizes it
+            client.send(send_data.encode(FORMAT)) # Send it to the server
 
         elif cmd == "DELETE":
             client.send(f"{cmd}@{data[1]}".encode(FORMAT))
