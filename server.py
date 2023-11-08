@@ -23,12 +23,12 @@ def handle_client(conn, addr):
 
   while True:
       data = conn.recv(SIZE).decode(FORMAT)
-      #print(data) # Debugging - Before input is split
+      # print(data) # Debugging - Before input is split
       data = data.split("@")
-      #print(data) # Debugging - After data is split
+      # print(data) # Debugging - After data is split
       cmd = data[0]
       
-      if cmd == "HELP": #Issues with this command
+      if cmd == "HELP": # Issues with this command
           send_data = "OK@"
           send_data += "HELP: List all of the commands."
           send_data += "LIST: List all the files from the server.\n"
@@ -38,11 +38,10 @@ def handle_client(conn, addr):
 
           conn.send(send_data.encode(FORMAT))
 
-      elif cmd == "LOGOUT": #Works
+      elif cmd == "LOGOUT": 
           break
       
-      elif cmd == "LIST": #Works
-          files = os.listdir(SERVER_PATH)
+      elif cmd == "LIST": 
           send_data = "OK@"
 
           if len(files) == 0:
@@ -52,16 +51,16 @@ def handle_client(conn, addr):
               send_data += "\n".join (f for f in files)
           conn.send(send_data.encode(FORMAT))
       
-      elif cmd == "UPLOAD": # Dosen't work
-          name, text_file = data[1], data[2]
-          file_path = os.path.join(SERVER_PATH, name)
+      elif cmd == "UPLOAD": 
+          name, text_file = data[1], data[2] # Organizing the data sent from client
+          file_path = os.path.join(SERVER_PATH, name) # Path for server's folder
           with open(file_path, "w") as f:
               f.write(text_file)
 
-          send_data = "OK@File uploaded succesfully."
+          send_data = "OK@File uploaded succesfully." 
           conn.send(send_data.encode(FORMAT))
 
-      elif cmd == "DELETE": # Works
+      elif cmd == "DELETE": 
           files = os.listdir(SERVER_PATH)
           send_data = "OK@"
           file_name = data[1]
