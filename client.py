@@ -2,7 +2,7 @@
 Author: Jaleel Rogers
 Class: CNT3004.01
 Proffesor: Dr. Dina
-Title: HW #3 - Server
+Title: HW #3 - Client
 Date: 11/10/23
 """""
 import socket
